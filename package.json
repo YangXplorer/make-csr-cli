@@ -1,6 +1,6 @@
 {
   "name": "make-csr-cli",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "A simple CLI tool to generate OpenSSL CSR files",
   "main": "install.js",
   "bin": {
