@@ -1,11 +1,13 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"mcsr/src/internal"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 // InitPaths 初始化配置文件的相关路径，返回配置目录、配置文件路径和 CN 文件路径
@@ -30,7 +32,7 @@ func InitPaths() (configDir, configFile, cnFile string, err error) {
 
 // InitConfig 确保配置文件目录、config 文件和 cn.txt 文件存在
 func InitConfig() error {
-	configDir, configFile, cnFile, err := InitPaths()
+	configDir, configFile, _, err := InitPaths()
 	if err != nil {
 		return fmt.Errorf("failed to get config paths: %v", err)
 	}
@@ -46,7 +48,7 @@ func InitConfig() error {
 	}
 
 	// 确保 CN 文件存在
-	if err := ensureFileWithContent(cnFile, "www.example.com\n"); err != nil {
+	if _, err := EnsureFileWithContent(true); err != nil {
 		return fmt.Errorf("failed to ensure cn.txt file: %w", err)
 	}
 
@@ -106,17 +108,63 @@ OU = %s
 }
 
 // ensureFileWithContent 确保文件存在，如果不存在则创建并写入默认内容
-func ensureFileWithContent(path, defaultContent string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		file, err := os.Create(path)
-		if err != nil {
-			return fmt.Errorf("failed to create file '%s': %w", path, err)
-		}
-		defer file.Close()
+func EnsureFileWithContent(init bool) (cn string, err error) {
+	_, _, cnFile, err := InitPaths()
+	defaultContent := "www.bridge.vc\n"
 
-		if _, err := file.WriteString(defaultContent); err != nil {
-			return fmt.Errorf("failed to write default content to file '%s': %w", path, err)
-		}
+	// 检查文件是否存在
+	fileExists := false
+	if _, err := os.Stat(cnFile); err == nil {
+		fileExists = true
 	}
-	return nil
+
+	// 提示用户是否追加内容
+	var input string
+	if !fileExists {
+		input = internal.UserCommandInput("Common name not found. Do you want to provide content? [Y/n]:", "y")
+	} else if !init {
+		input = internal.UserCommandInput("Do you want to add content? [Y/n]:", "y")
+	} else {
+		return "", nil
+	}
+
+	if strings.ToLower(input) != "y" {
+		fmt.Printf("No changes made to '%s'.\n", cnFile)
+		return "n", nil
+	}
+
+	// 打开文件（追加模式）或创建新文件
+	file, err := os.OpenFile(cnFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return "", fmt.Errorf("failed to open file '%s': %w", cnFile, err)
+	}
+	defer file.Close()
+
+	// 提示用户输入新内容
+	fmt.Println("Please enter the CNs to append. Type 'END' on a new line to finish:")
+	reader := bufio.NewReader(os.Stdin)
+	var lines []string
+	for {
+		line, _ := reader.ReadString('\n')
+		line = strings.TrimSpace(line)
+		if strings.ToLower(line) == "end" {
+			break
+		}
+		lines = append(lines, line)
+	}
+
+	// 如果用户没有输入任何内容，使用默认值
+	content := strings.Join(lines, "\n")
+	if content == "" {
+		content = defaultContent
+		fmt.Printf("Default content will be appended to '%s'.\n", cnFile)
+	}
+
+	// 写入新内容
+	if _, err := file.WriteString(content + "\n"); err != nil {
+		return "", fmt.Errorf("failed to write to file '%s': %w", cnFile, err)
+	}
+
+	fmt.Printf("New content has been successfully appended to '%s'.\n", cnFile)
+	return cn, nil
 }

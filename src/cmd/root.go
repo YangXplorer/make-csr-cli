@@ -32,30 +32,44 @@ func runGenerateCSR(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// 从文件中读取 Common Name (CN) 选项列表
-	commonNames, err := internal.LoadCommonNames(cnFile)
-	if err != nil || len(commonNames) == 0 {
-		fmt.Println("cn.txt is empty or missing. Please add Common Name (CN) entries to cn.txt and try again.")
-		return
-	}
+	var cn string
+	for {
+		// 从文件中读取 Common Name (CN) 选项列表
+		commonNames, err := internal.LoadCommonNames(cnFile)
+		if err != nil || len(commonNames) == 0 {
+			fmt.Println("cn.txt is empty or missing. Please add Common Name (CN) entries to cn.txt and try again.")
+			return
+		}
+		commonNames = append(commonNames, "Enter a new CN.")
+		// 自定义 promptui 的选择项样式
+		prompt := promptui.Select{
+			Label: "コモンネーム (CN) を選択してください。（Select the Common Name (CN)）",
+			Items: commonNames,
+			Templates: &promptui.SelectTemplates{
+				Active:   `{{ "> " | green }}{{ . | green }}`,               // 选中项的前缀和显示样式
+				Inactive: `  {{ . }}`,                                       // 非选中项的显示样式
+				Selected: `{{ "> " | green | bold }}{{ . | green | bold }}`, // 选中后确认显示样式
+			},
+			Pointer: promptui.PipeCursor, // 使用 | 作为光标
+		}
 
-	// 自定义 promptui 的选择项样式
-	prompt := promptui.Select{
-		Label: "コモンネーム (CN) を選択してください。（Select the Common Name (CN)）",
-		Items: commonNames,
-		Templates: &promptui.SelectTemplates{
-			Active:   `{{ "> " | green }}{{ . | green }}`,               // 选中项的前缀和显示样式
-			Inactive: `  {{ . }}`,                                       // 非选中项的显示样式
-			Selected: `{{ "> " | green | bold }}{{ . | green | bold }}`, // 选中后确认显示样式
-		},
-		Pointer: promptui.PipeCursor, // 使用 | 作为光标
-	}
-
-	// 获取用户选择的索引和值
-	_, cn, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		// 获取用户选择的索引和值
+		_, cn, err = prompt.Run()
+		if err != nil {
+			fmt.Printf("Prompt failed %v\n", err)
+			return
+		}
+		// 如果用户选择了 "Add new CN" 选项，提示用户输入新的 CN
+		if cn == "Enter a new CN." {
+			if _, err = config.EnsureFileWithContent(false); err != nil {
+				fmt.Printf("failed to ensure cn.txt file: %v\n", err)
+				continue
+			}
+		} else {
+			// 用户选择了其他 CN，退出循环
+			fmt.Printf("You selected: %s\n", cn)
+			break
+		}
 	}
 
 	// 提示用户输入 emailAddress，并添加邮件地址格式检查
