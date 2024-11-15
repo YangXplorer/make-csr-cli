@@ -71,11 +71,11 @@ func ensureConfigFile(path string) error {
 		fmt.Println("Configuration file not found. Please provide the following details:")
 
 		// 提示用户输入各个字段
-		country := internal.UserCommandInput("Country Code (C) [e.g., JP]: ", "JP")
-		state := internal.UserCommandInput("State or Province Name (ST) [e.g., Tokyo]: ", "Tokyo")
-		locality := internal.UserCommandInput("Locality Name (L) [e.g., CHUOU-KU]: ", "CHUOU-KU")
-		organization := internal.UserCommandInput("Organization Name (O) [e.g., BRIDGE CO.,LTD.]: ", "BRIDGE CO.,LTD.")
-		orgUnit := internal.UserCommandInput("Organizational Unit Name (OU) [e.g., BRIDGE CO.,LTD.]: ", "BRIDGE CO.,LTD.")
+		country := internal.UserCommandInput("? Enter Country Code (C) [e.g., JP]: ", "JP")
+		state := internal.UserCommandInput("? Enter State or Province Name (ST) [e.g., Tokyo]: ", "Tokyo")
+		locality := internal.UserCommandInput("? Enter Locality Name (L) [e.g., CHUOU-KU]: ", "CHUOU-KU")
+		organization := internal.UserCommandInput("? Enter Organization Name (O) [e.g., BRIDGE CO.,LTD.]: ", "BRIDGE CO.,LTD.")
+		orgUnit := internal.UserCommandInput("? Enter Organizational Unit Name (OU) [e.g., BRIDGE CO.,LTD.]: ", "BRIDGE CO.,LTD.")
 
 		// 构建配置文件内容
 		configContent := fmt.Sprintf(`

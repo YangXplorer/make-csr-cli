@@ -26,27 +26,24 @@ make-csr
 
 ### Interactive Prompts
 When you run `make-csr`, you will be prompted to enter the following details:
-- **Common Name (CN)**: The fully qualified domain name (FQDN) for the certificate.
+- **Country (C)**: The two-letter ISO country code.
+- **State (ST)**: Your state or province.
+- **Locality (L)**: Your locality name.
 - **Organization (O)**: The name of your organization.
 - **Organizational Unit (OU)**: The division within your organization.
-- **Locality (L)**: Your city.
-- **State (ST)**: Your state or province.
-- **Country (C)**: The two-letter ISO country code.
-- **Key File Path**: The file path where the private key will be saved.
-- **CSR File Path**: The file path where the CSR will be saved.
 
+- **Common Name (CN)**: The fully qualified domain name (FQDN) for the certificate.
 ## Examples
 
 ```bash
 $ make-csr
-? Enter Common Name (CN): example.com
-? Enter Organization (O): My Company
-? Enter Organizational Unit (OU): IT Department
-? Enter Locality (L): San Francisco
-? Enter State (ST): California
-? Enter Country (C): US
-? Enter key file path: ./example-key.pem
-? Enter CSR file path: ./example-csr.pem
+Configuration file not found. Please provide the following details:
+? Enter Country Code (C) [e.g., JP]:
+? Enter State or Province Name (ST) [e.g., Tokyo]:
+? Enter Locality Name (L) [e.g., CHUOU-KU]:
+? Enter Organization Name (O) [e.g., BRIDGE CO.,LTD.]:
+? Enter Organizational Unit Name (OU) [e.g., BRIDGE CO.,LTD.]:
+Common name not found. Do you want to provide content? [Y/n]:
 ```
 
 ### Options
@@ -56,8 +53,6 @@ $ make-csr
 - `--l`: Locality (L)
 - `--st`: State (ST)
 - `--c`: Country (C)
-- `--key`: Path to save the private key
-- `--csr`: Path to save the CSR
 
 ## Compatibility
 
