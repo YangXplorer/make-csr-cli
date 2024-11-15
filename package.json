@@ -4,7 +4,7 @@
   "description": "A simple CLI tool to generate OpenSSL CSR files",
   "main": "install.js",
   "bin": {
-    "mcsr": "./bin/makeCsr"
+    "make-csr": "./bin/makeCsr"
   },
   "scripts": {
     "build": "node install.js",
