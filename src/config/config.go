@@ -124,7 +124,6 @@ func EnsureFileWithContent(init bool) (cn string, err error) {
 		input = internal.UserCommandInput("Common name not found. Do you want to provide content? [Y/n]:", "y")
 	} else if !init {
 		input = internal.UserCommandInput("Do you want to add content? [Y/n]:", "y")
-		os.Stdout.Sync()
 	} else {
 		return "", nil
 	}
